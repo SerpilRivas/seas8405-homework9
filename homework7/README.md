@@ -1,4 +1,8 @@
+## Video Demonstration
 
+You can watch my screen recording of the analysis, remediation, and verification process here:
+
+[Watch the video](https://drive.google.com/file/d/1-CYxZxEIxvW_PwRxmpagP7VGnMHGYgF_/view?usp=drive_link)
 ## 1. Developer’s Perspective: Initial Application Setup
 
 The initial setup represents a developer’s implementation of a Flask application, containerized with Docker and orchestrated via Docker Compose, with automation provided by a Makefile. This version, located in the `before/` directory, contains intentional vulnerabilities to be addressed later.
