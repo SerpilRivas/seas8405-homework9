@@ -38,7 +38,6 @@ This activity included the use of open-source security tools, container hardenin
 
    <img src="images/flask_running_before.png" alt="Flask App Running" width="400" style="border: 1px solid #ddd; padding: 5px;">  
    <img src="images/vuln_before.png" alt="Initial App Deployment" width="400" style="border: 1px solid #ddd; padding: 5px;">
-
 2. **Scanned the codebase using Bandit for known vulnerabilities.**  
    The Bandit static analysis tool identified unsafe subprocess calls, use of `eval()`, and insecure host bindings.  
 
@@ -48,7 +47,6 @@ This activity included the use of open-source security tools, container hardenin
    Environment variables replaced hardcoded secrets, `eval()` was replaced with safe math evaluation, and input validation was enforced using regex and type checks. 
 
    <img src="images/app_input_fixes.png" alt="Input Validation Fix" width="400" style="border: 1px solid #ddd; padding: 5px;">  
-
    <img src="images/fix_credentials_and_input_validation.png" alt="Credential and Eval Fix" width="400" style="border: 1px solid #ddd; padding: 5px;">
 
 4. **Hardened the Dockerfile by using a minimal base image, creating a non-root user, and adding a HEALTHCHECK.**  
