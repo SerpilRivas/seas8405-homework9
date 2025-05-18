@@ -1,15 +1,14 @@
-## Summary Report – SEAS-8405 Homework 7
+# Summary Report – SEAS-8405 Homework 7
 ## Security Hardening of a Containerized Flask Application  
-**Serpil Rivas**  
-**Date: May 16, 2025**
-### Introduction
+*Serpil Rivas*  
+*Date: May 16, 2025*
+>### Introduction
 
 This report documents the process and outcomes of hardening a vulnerable containerized Python Flask application as part of Homework 7 for SEAS-8405 Cybersecurity Architecture. The purpose of this exercise was to identify real-world security issues within a microservices-based web application and implement defenses that align with best practices and security architecture frameworks, including Defense in Depth (DiD), Zero Trust Architecture (ZTA), and Adaptive Security Architecture (ASA).
 
 This activity included the use of open-source security tools, container hardening, vulnerability scanning, and architecture design. All mitigation approaches were deployed in a layered and contextualized manner, designed to reduce the attack surface, apply least privilege, and strengthen system resilience. This report includes a thorough explanation of tools used, vulnerabilities discovered, remediations applied, architectural improvements, and key lessons learned.
----
 
-### Tools and Definitions
+>### Tools and Definitions
 
 - **Docker & Docker Compose**  
   Docker is a platform for containerizing applications, providing lightweight isolated environments for code execution. Docker Compose is a tool for defining and managing multi-container applications.  
@@ -31,37 +30,44 @@ This activity included the use of open-source security tools, container hardenin
   A free online diagram tool used to create the architecture diagram for this report.  
   *[Diagrams.net, 2024]*
 
-### Steps Taken
+>### Steps Taken
 
 1. **Deployed the vulnerable Flask app using Docker Compose.**  
    The application was launched using `docker-compose up -d`, and containers started successfully.  
-   The Flask app responded as expected at `localhost:15000`.  
-   ![Flask App Running](images/flask_running_before.png)  
-   ![Initial App Deployment](images/vuln_before.png)
+   The Flask app responded as expected at `localhost:15000`.
+
+   <img src="images/flask_running_before.png" alt="Flask App Running" width="400" style="border: 1px solid #ddd; padding: 5px;">  
+   <img src="images/vuln_before.png" alt="Initial App Deployment" width="400" style="border: 1px solid #ddd; padding: 5px;">
 
 2. **Scanned the codebase using Bandit for known vulnerabilities.**  
    The Bandit static analysis tool identified unsafe subprocess calls, use of `eval()`, and insecure host bindings.  
-   ![Bandit Findings](images/bandit_before.png)
+
+   <img src="images/bandit_before.png" alt="Bandit Findings" width="400" style="border: 1px solid #ddd; padding: 5px;">
 
 3. **Fixed hardcoded credentials, unsafe `eval()`, and missing input validations.**  
-   Environment variables replaced hardcoded secrets, `eval()` was replaced with safe math evaluation, and input validation was enforced using regex and type checks.  
-   ![Input Validation Fix](images/app_input_fixes.png)  
-   ![Credential and Eval Fix](images/fix_credentials_and_input_validation.png)
+   Environment variables replaced hardcoded secrets, `eval()` was replaced with safe math evaluation, and input validation was enforced using regex and type checks. 
+
+   <img src="images/app_input_fixes.png" alt="Input Validation Fix" width="400" style="border: 1px solid #ddd; padding: 5px;">  
+
+   <img src="images/fix_credentials_and_input_validation.png" alt="Credential and Eval Fix" width="400" style="border: 1px solid #ddd; padding: 5px;">
 
 4. **Hardened the Dockerfile by using a minimal base image, creating a non-root user, and adding a HEALTHCHECK.**  
-   The updated Dockerfile uses `python:3.13-alpine`, adds a non-root user, and includes a container health check.  
-   ![Dockerfile Hardening](images/dockerfile_hardening_applied.png)
+   The updated Dockerfile uses `python:3.13-alpine`, adds a non-root user, and includes a container health check. 
+
+   <img src="images/dockerfile_hardening_applied.png" alt="Dockerfile Hardening" width="400" style="border: 1px solid #ddd; padding: 5px;">
 
 5. **Updated `docker-compose.yml` with resource limits, read-only filesystem, and localhost port binding.**  
-   Memory, process, and network restrictions were added to limit the blast radius of any compromise. Sensitive credentials were sourced securely from `.env` files.  
-   ![Docker Compose Security Settings](images/docker_compose_hardening.png)
+   Memory, process, and network restrictions were added to limit the blast radius of any compromise. Sensitive credentials were sourced securely from `.env` files. 
+
+   <img src="images/docker_compose_hardening.png" alt="Docker Compose Security Settings" width="400" style="border: 1px solid #ddd; padding: 5px;">
 
 6. **Created a secure architecture diagram using draw.io.**  
    The architecture diagram was designed using [https://app.diagrams.net](https://app.diagrams.net) to visually represent security controls across the microservices deployment.  
    It highlights container roles, Docker runtime protections, and network boundaries for defense-in-depth.  
-   ![Architecture Diagram](images/architecture_diagram_final.png)
 
-### Threat Modeling and Security Alignment
+   <img src="images/architecture_diagram_final.png" alt="Architecture Diagram" width="400" style="border: 1px solid #ddd; padding: 5px;">
+
+>### Threat Modeling and Security Alignment
 
 In order to ensure the Flask-based microservices application was resilient against common container threats, a structured threat modeling process was conducted using the STRIDE framework. Each threat category, Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege, was mapped to specific application behaviors and mitigated accordingly through code or container-level controls.
 
@@ -73,10 +79,11 @@ In addition, each discovered vulnerability was mapped to relevant NIST 800-53 co
 - **SC-12 / SC-28**: Protecting sensitive data at rest and in transit
 
 The secure architecture diagram shown above (under steps taken, 6) visually reinforces this model by outlining privilege boundaries, container roles, and Docker hardening techniques such as `userns-remap`, `read_only`, `mem_limit`, and `no-new-privileges`.  
-![Threat Model Alignment](images/threat_model_alignment.png)
+
+<img src="images/threat_model_alignment.png" alt="Threat Model Alignment" width="400" style="border: 1px solid #ddd; padding: 5px;">
 
 
-### Validation and Vulnerability Comparison
+>### Validation and Vulnerability Comparison
 
 To confirm that the remediation efforts were effective, a set of before-and-after vulnerability scans were performed.
 
@@ -85,26 +92,29 @@ Docker Scout scans initially identified multiple vulnerabilities in the base ima
 The final scan returned **zero vulnerabilities**, confirming that hardening was successful and aligned with best practices for secure container development.
 
 **Before Hardening: Vulnerabilities Present**  
-![Before Scan](images/vuln_scan_before.png)
+
+<img src="images/vuln_scan_before.png" alt="Before Scan" width="400" style="border: 1px solid #ddd; padding: 5px;">
+
 
 **After Hardening: No Vulnerabilities Detected**  
-![After Scan](images/vuln_scan_after.png)
 
-### Architecture Improvements
+<img src="images/vuln_scan_after.png" alt="After Scan" width="400" style="border: 1px solid #ddd; padding: 5px;">
+
+>### Architecture Improvements
 
 **Before:** Flat architecture, root containers, no runtime checks.  
 **After:** Layered defenses, non-root containers, hardened deployment.  
 Mitigations applied addressed OWASP A1, A3, A5, and A7 vulnerabilities.  
 *(OWASP, 2021)*
 
-### Lessons Learned
+>### Lessons Learned
 
 - Multi-layered defense is essential.  
 - Static analysis is valuable for identifying hidden issues.  
 - Small misconfigurations can have large impacts.  
 - Automation must be combined with manual review.
 
-### Mitigations and Their Purpose
+>### Mitigations and Their Purpose
 
 | Mitigation           | Purpose                                  |
 |----------------------|------------------------------------------|
@@ -115,7 +125,7 @@ Mitigations applied addressed OWASP A1, A3, A5, and A7 vulnerabilities.
 | Read-only filesystem | Prevents tampering with container        |
 | Localhost binding    | Restricts external network exposure      |
 
-### Challenges and Resolutions
+>### Challenges and Resolutions
 
 | Problem                  | Fix                                       |
 |--------------------------|-------------------------------------------|
@@ -124,11 +134,11 @@ Mitigations applied addressed OWASP A1, A3, A5, and A7 vulnerabilities.
 | False Bandit positives   | Reviewed and suppressed expected results  |
 | Secrets formatting       | Ensured `.env` did not contain extra whitespace |
 
-### Reflection and Framework Alignment
+>### Reflection and Framework Alignment
 
 This hardening exercise directly reflects Secure Software Development Lifecycle (SSDLC) principles, emphasizing secure design, static analysis, and verification steps integrated throughout the containerization workflow. Also, the multi-layered defenses deployed, input validation, non-root execution, and networking restriction—are aligned with core principles of Defense in Depth (DiD) and Zero Trust Architecture (ZTA), enforcing least privilege and limiting trust boundaries.
 
-### Conclusion
+>### Conclusion
 
 This assignment provided in-depth, hands-on experience with applying modern container security techniques across the entire application lifecycle. By identifying vulnerabilities, implementing layered defenses, and validating remediations through automated tools and architecture design, it was possible to transform an insecure microservices deployment into a hardened, production-ready environment.
 
@@ -136,7 +146,7 @@ The final application now demonstrates improved resistance to code injection, pr
 
 Overall, the assignment strengthened my understanding of secure software development lifecycle (SSDLC) principles, Defense in Depth (DiD), and Zero Trust Architecture (ZTA). These experiences will directly support my ability to design, assess, and secure real-world containerized systems in both academic and industry environments.
 
-### References
+>### References
 
 - OWASP Foundation. OWASP Top 10 - 2021. https://owasp.org/www-project-top-ten/  
 - Docker Documentation. https://docs.docker.com/  
