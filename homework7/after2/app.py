@@ -1,13 +1,13 @@
 from flask import Flask, request, jsonify
 import os
 import re
-import sympy
+import ast
 from ping3 import ping
 
 app = Flask(__name__)
 print("🔥 Flask app loaded with updated code!")
 
-# Hard-coded password
+# Load password securely from environment
 PASSWORD = os.getenv("APP_PASSWORD", "changeme")
 
 @app.route('/')
@@ -41,27 +41,34 @@ def do_ping():
     except Exception as e:
         return f"Error: {str(e)}", 500
 
+# AST-secure /calculate route
 @app.route('/calculate')
 def calculate():
     expression = request.args.get('expr', '').strip()
 
-    # Reject empty or invalid characters
+    # Only allow safe math characters
     if not re.match(r'^[\d\+\-\*/\(\)\.\s]+$', expression):
         return "Invalid expression format", 400
 
-    # Remove extra spaces
+    # Remove whitespace
     expression = re.sub(r'\s+', '', expression)
 
     try:
-        result = sympy.sympify(expression, evaluate=True)
+        # Parse and check allowed AST nodes
+        node = ast.parse(expression, mode='eval')
+        for subnode in ast.walk(node):
+            if not isinstance(subnode, (
+                ast.Expression, ast.BinOp, ast.UnaryOp,
+                ast.Num, ast.Add, ast.Sub, ast.Mult, ast.Div,
+                ast.Pow, ast.USub, ast.UAdd, ast.Load, ast.Constant
+            )):
+                return "Invalid or unsafe expression", 400
 
-        # Check for undefined/infinite values
-        if result.is_infinite or result.has(sympy.zoo):
-            return "Division by zero is not allowed", 400
+        result = eval(compile(node, "<string>", mode="eval"))
+        return jsonify({'result': result})
 
-        return jsonify({'result': float(result)})
-    except (sympy.SympifyError, ZeroDivisionError):
-        return "Invalid expression", 400
+    except Exception:
+        return "Invalid or unsafe expression", 400
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000)

@@ -57,23 +57,19 @@ This activity included the use of open-source security tools, container hardenin
 
 5. **Updated `docker-compose.yml` with resource limits, read-only filesystem, and localhost port binding.**  
    Memory, process, and network restrictions were added to limit the blast radius of any compromise. Sensitive credentials were sourced securely from `.env` files. 
+
    <img src="images/docker_compose_hardening.png" alt="Docker Compose Security Settings" width="400" style="border: 1px solid #ddd; padding: 5px;">
-   
+
 6. **Restricted Flask to localhost** by explicitly setting `host='127.0.0.1'` in `app.py`, ensuring the application is only accessible from the host machine. This prevents external network access during development and meets secure deployment practices. Additionally, the Docker configuration binds the exposed port to localhost using `"127.0.0.1:15000:5000"` in `docker-compose.yml`, further reinforcing local-only access.
 
-
 7. **Created a secure architecture diagram using draw.io.**  
-   The architecture diagram was designed using [https://app.diagrams.net](https://app.diagrams.net) to visually represent security controls across the microservices deployment. It highlights container roles, Docker runtime protections, and network boundaries for defense-in-depth. 
+   The architecture diagram was designed using [https://app.diagrams.net](https://app.diagrams.net) to visually represent security controls across the microservices deployment.  
+   It highlights container roles, Docker runtime protections, and network boundaries for defense-in-depth.  
 
    <img src="images/architecture_diagram_final.png" alt="Architecture Diagram" width="400" style="border: 1px solid #ddd; padding: 5px;">
 
-8. **Evaluated expression evaluation methods and implemented two secure versions.**  
-   In the `after/` folder, I initially used `sympy.sympify()` to securely evaluate user-submitted math expressions. This method allowed safe arithmetic parsing (e.g., `2+3`, `4*(1+2)`) while blocking dangerous operations such as code execution or module imports.  
-
-   I then tested the suggested method from the assignment `ast.literal_eval()` as a safer replacement for `eval()`. However, it cannot process math expressions like `2+3` because it only supports literal values such as numbers, lists, and strings—not arithmetic operations. When attempting to parse an expression like `2+3`, it raises a `ValueError` due to detecting an unsupported binary operation (`ast.BinOp`).
-
-   To meet the assignment’s requirement while preserving math functionality, I created the `after2/` version using `ast.parse()` in `eval` mode, combined with a strict AST node validator. This solution securely parses and evaluates expressions by explicitly allowing only safe math operations, thus achieving both functionality and security without using `eval()` or `sympy.sympify()`.
-
+8. **Note on Replacing `eval()` and Use of `ast.literal_eval()`**  
+As part of securing the `/calculate` route, I explored using `ast.literal_eval()` to replace Python’s insecure `eval()` function, as recommended. However, I found that `ast.literal_eval()` cannot evaluate arithmetic expressions like `2+3` or `4*(1+2)`. It only supports Python literals such as numbers, strings, lists, and dictionaries, and it raises a `ValueError` when parsing any expression involving operations like addition or multiplication.  To maintain math functionality while eliminating security risks, I implemented a safer alternative in the `after2/` version using `ast.parse()` in `eval` mode. I then validated the resulting AST to allow only safe node types such as `BinOp`, `Add`, `Mult`, `Num`, and `Constant`, blocking anything that could lead to code execution or unsafe behavior. This method securely supports user-submitted arithmetic input while fully complying with the assignment’s requirement to avoid `eval()` and its equivalents.
 
 
 >### Threat Modeling and Security Alignment
