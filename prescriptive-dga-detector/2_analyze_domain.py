@@ -1,8 +1,12 @@
 # 2_analyze_domain.py
-import argparse, os
+import argparse
+import os
 from pathlib import Path
-import numpy as np, pandas as pd
-import h2o, shap
+
+import h2o
+import numpy as np
+import pandas as pd
+import shap
 from utils import extract_features
 
 # GenAI (optional)
@@ -31,6 +35,7 @@ def shap_explain_single(model, instance_df: pd.DataFrame, background_df: pd.Data
     """
     Robustly handle SHAP output shapes for a single-instance explanation.
     """
+
     def f(X):
         if isinstance(X, np.ndarray):
             X = pd.DataFrame(X, columns=["length", "entropy"])
@@ -49,11 +54,13 @@ def shap_explain_single(model, instance_df: pd.DataFrame, background_df: pd.Data
 
 
 def build_xai_findings(domain: str, feats: dict, p: float, shap_vals: dict) -> str:
-    def d(v): return "towards 'dga'" if v > 0 else "towards 'legit'"
+    def d(v):
+        return "towards 'dga'" if v > 0 else "towards 'legit'"
+
     return (
         f"- Alert: Potential DGA domain detected.\n"
         f"- Domain: '{domain}'\n"
-        f"- AI Model Explanation (from SHAP): {p*100:.2f}% confidence for 'dga'.\n"
+        f"- AI Model Explanation (from SHAP): {p * 100:.2f}% confidence for 'dga'.\n"
         f"  Contributions:\n"
         f"  - entropy={feats['entropy']:.3f} (SHAP {shap_vals['entropy']:+.3f}, {d(shap_vals['entropy'])})\n"
         f"  - length={feats['length']} (SHAP {shap_vals['length']:+.3f}, {d(shap_vals['length'])})"
@@ -102,7 +109,9 @@ def main():
 
         if label == "dga":
             if not Path(args.train_csv).exists():
-                raise FileNotFoundError("Run 1_train_and_export.py first to create the background CSV.")
+                raise FileNotFoundError(
+                    "Run 1_train_and_export.py first to create the background CSV."
+                )
             bg = pd.read_csv(args.train_csv)[["length", "entropy"]]
             bg = bg.sample(n=min(100, len(bg)), random_state=42)
             shap_vals = shap_explain_single(model, X, bg)
@@ -119,4 +128,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
