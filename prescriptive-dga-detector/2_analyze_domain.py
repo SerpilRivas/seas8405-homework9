@@ -109,9 +109,7 @@ def main():
 
         if label == "dga":
             if not Path(args.train_csv).exists():
-                raise FileNotFoundError(
-                    "Run 1_train_and_export.py first to create the background CSV."
-                )
+                raise FileNotFoundError("Run 1_train_and_export.py first to create the background CSV.")
             bg = pd.read_csv(args.train_csv)[["length", "entropy"]]
             bg = bg.sample(n=min(100, len(bg)), random_state=42)
             shap_vals = shap_explain_single(model, X, bg)
