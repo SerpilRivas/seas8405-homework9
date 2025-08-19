@@ -37,3 +37,5 @@ java -version
 - `examples/dga_run.txt`
 - `examples/playbook_first_screen.txt`
 - `examples/xai_block.txt`
+
+**HW9 Release:** https://github.com/SerpilRivas/seas8405-homework9/releases/tag/hw9-v1
