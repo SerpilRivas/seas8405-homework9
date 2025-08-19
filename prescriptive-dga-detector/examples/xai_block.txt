@@ -1,0 +1,8 @@
+=== XAI Findings ===
+- Alert: Potential DGA domain detected.
+- Domain: 'kq3v9z7j1x5f8g2h.info'
+- AI Model Explanation (from SHAP): 100.00% confidence for 'dga'.
+  Contributions:
+  - entropy=4.000 (SHAP +0.210, towards 'dga')
+  - length=16 (SHAP +0.290, towards 'dga') 
+
