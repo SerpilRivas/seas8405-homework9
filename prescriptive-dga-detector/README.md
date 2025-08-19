@@ -1,41 +1,39 @@
 # Prescriptive DGA Detector
 
-A tiny demo that trains an **H2O AutoML** model to detect DGA-looking domains, then explains each decision with **SHAP** and (optionally) generates a **prescriptive incident-response playbook** via Gemini.
+End-to-end pipeline that:
+1) trains a high-performance DGA detector with **H2O AutoML**,  
+2) explains each decision with **SHAP**, and  
+3) turns those explanations into an analyst **playbook** via **Generative AI**.
 
----
+## Architecture (AutoML → SHAP → GenAI)
 
-## What it does
+- **Ingest**: a domain (`--domain example.com`)
+- **Feature engineering**: `length`, `entropy`
+- **Predict**: production MOJO model (`model/DGA_Leader.zip`)
+- **Explain (local)**: SHAP values for the single prediction
+- **XAI → GenAI bridge**: programmatically summarize SHAP into `xai_findings`
+- **Prescribe**: prompt the LLM to generate a context-aware incident response playbook
 
-1. **Train** a model on simple features (`length`, `entropy`) and export a fast MOJO.
-2. **Score** any domain with the MOJO.
-3. **Explain** the decision for a suspicious domain with SHAP.
-4. **(Optional)** Generate a prescriptive SOC playbook using Gemini (if `GOOGLE_API_KEY` is set).
+## Quickstart
 
----
-
-## Requirements
-
-- macOS or Linux
-- **Python 3.12+**
-- **Java 17** (required by H2O)
-- `pip`
-
-Check:
+From this folder:
 ```bash
-python3 --version
-java -version
-```
+cd prescriptive-dga-detector
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python 1_train_and_export.py
+# outputs:
+#   data/dga_dataset_train.csv
+#   model/DGA_Leader.zip
+#   model/leaderboard.csv
 
-## Artifacts (what to submit)
-**Screenshots**
-- `examples/screenshot_A_legit.png` — legit classification (google.com)
-- `examples/screenshot_B_xai.png` — XAI findings block for DGA
-- `examples/screenshot_C_playbook.png` — first screen of the playbook
+python 2_analyze_domain.py --domain google.com
+## (Optional) Enable Playbook Generation
 
-**Saved console output**
-- `examples/google_run.txt`
-- `examples/dga_run.txt`
-- `examples/playbook_first_screen.txt`
-- `examples/xai_block.txt`
+To let the script ask Gemini to generate an incident-response playbook, set an API key:
 
-**HW9 Release:** https://github.com/SerpilRivas/seas8405-homework9/releases/tag/hw9-v1
+```bash
+export GOOGLE_API_KEY="<YOUR-KEY-HERE>"
+export GOOGLE_API_KEY="<YOUR-KEY-HERE>"
+GOOGLE_API_KEY="<YOUR-KEY-HERE>" python prescriptive-dga-detector/2_analyze_domain.py --domain google.com
+cd prescriptive-dga-detector
